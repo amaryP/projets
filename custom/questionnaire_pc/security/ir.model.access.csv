@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pc_survey_decision_user,access_pc_survey_decision_user,model_pc_survey_decision,base.group_user,1,1,1,0
+access_pc_survey_decision_manager,access_pc_survey_decision_manager,model_pc_survey_decision,base.group_system,1,1,1,1
+

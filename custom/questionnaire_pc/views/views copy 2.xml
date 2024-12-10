@@ -1,0 +1,118 @@
+<odoo>
+  <data>
+    <!-- Vue Formulaire -->
+     <record id="view_pc_survey_decision_form" model="ir.ui.view">
+        <field name="name">pc.survey.decision.form</field>
+        <field name="model">pc.survey.decision</field>
+        <field name="arch" type="xml">
+            <form string="Gestion des candidatures" class="questionnaire-form">
+                <sheet>
+                  <!-- Première ligne avec 2 colonnes -->
+               <!-- Table pour disposer les champs horizontalement -->
+                <table class="table table-bordered">
+                    <tr>
+                      <td>
+                        <label for="statut" class="col-sm-2 control-label"></label>
+                            <field name="statut"/>
+                        </td>
+                        <td>
+                        <label for="email" class="col-sm-2 control-label"></label>
+                            <field name="email"/>
+                        </td>
+                       <td> 
+                            <label for="adhesion_status" class="col-sm-5 control-label"></label>
+                            <field name="adhesion_status"/>
+                        </td>
+
+                    </tr>
+                        <tr>
+                        <td>
+                            <label for="date_contact_comite" class="col-sm-7 control-label"></label>
+                            <field name="date_contact_comite" class="col-sm-1 form-control"/>
+                        </td>
+                       <td>
+                            <label for="date_email_confirmation" class="col-sm-7 control-label"></label>
+                            <field name="date_email_confirmation" class="col-sm-1 form-control"/>
+                        </td>
+
+
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label for="email_verification" class="col-sm-2 control-label"></label>
+                            <field name="email_verification" class="col-sm-2 form-control"/>
+                        </td>
+                        <td>
+                            <label for="call_verification" class="col-sm-2 control-label"></label>
+                            <field name="call_verification" class="col-sm-2 form-control"/>
+                        </td>
+                        <td>
+                            <label for="email_confirmation" class="col-sm-6 control-label"></label>
+                            <field name="email_confirmation" class="col-sm-6 form-control"/>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td colspan="2">
+                        <label for="commentaire" class="col-sm-6 control-label"></label>
+                            <field name="commentaire" class="col-sm-6 form-control"/>
+                        </td>
+                        <td>
+                            <label for="create_date" class="col-sm-4 control-label"></label>
+                            <field name="create_date" readonly="1" string="Date de création"/>
+                        </td>
+
+                    </tr>
+
+
+                </table>
+                    
+                    
+      <!-- Onglets pour afficher d'autres informations (Réponses au questionnaire) -->
+        <notebook>
+            <page string="Réponses au questionnaire">
+        <!-- Bloc avec ascenseur spécifique pour les réponses -->
+                <div style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                    <!-- Affichage des réponses sous forme de sous-formulaire -->
+                    <field name="user_input_lines">
+                        <list>
+                            <field name="question_id" readonly="1"/>
+                            <field name="value_char_box" readonly="1"/>
+                        </list>
+                    </field>
+                 </div>
+            </page>
+        </notebook>
+    </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pc_survey_decision_list" model="ir.ui.view">
+      <field name="name">pc.survey.decision.list</field>
+      <field name="model">pc.survey.decision</field>
+      <field name="arch" type="xml">
+        <list string="Arbitrage des candidatures">
+          <field name="create_date" readonly="1" string="Date de création"/>
+          <field name="email"/>
+          <field name="statut"/>
+          <field name="commentaire"/>
+        </list>
+      </field>
+    </record>
+  
+
+   <!-- Action pour ouvrir la vue list -->
+    <record id="action_pc_survey_decision_list" model="ir.actions.act_window">
+      <field name="name">Gestion des candidatures à la plateforme des patients</field>
+      <field name="res_model">pc.survey.decision</field>
+      <field name="view_mode">list,form</field>
+      <field name="view_id" ref="view_pc_survey_decision_list"/>
+      <field name="target">current</field>
+    </record>
+
+  <!-- Menu pour accéder à l'action -->
+    <menuitem name="Arbitrage" id="menu_pc_survey_decision" action="action_pc_survey_decision_list"/>  </data>
+</odoo>

@@ -1,0 +1,33 @@
+/* Style pour les champs de type date */
+.questionnaire-form {
+    background-color: rgba(35, 162, 204, 1); /* Fond bleu léger */
+    padding: 20px; /* Espacement intérieur */
+    border-radius: 8px; /* Coins arrondis */
+}
+.questionnaire-form .date-field {
+    /*background-color: #f4f4f4; /* Couleur de fond claire */
+    background-color: seashell;
+    border: 1px solid #ccc; /* Bordure gris clair */
+    padding: 5px; /* Espacement intérieur */
+    border-radius: 5px; /* Coins arrondis */
+}
+
+/* Style pour rendre les champs plus visibles lorsque la souris passe dessus */
+.questionnaire-form .date-field:hover {
+    background-color: #e6e6e6; /* Couleur de fond plus sombre au survol */
+    border-color: #007bff; /* Bordure bleue au survol */
+}
+
+/* Style général pour les champs du formulaire */
+.questionnaire-form .form-control {
+    background-color: rgba(173, 216, 230, 0.1); /* bleu transparent */
+    border: 1px solid #ccc; /* Bordure grise claire */
+    padding: 8px; /* Espacement intérieur */
+    border-radius: 4px; /* Coins arrondis */
+}
+
+/* Optionnel : style pour les champs en lecture seule */
+.questionnaire-form .form-control[readonly] {
+    background-color: #f5f5f5; /* Fond gris clair pour les champs en lecture seule */
+    border: 1px solid #ddd; /* Bordure légère */
+}

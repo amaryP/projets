@@ -1,0 +1,80 @@
+<odoo>
+  <data>
+    <!-- Vue Formulaire -->
+     <record id="view_pc_survey_decision_form" model="ir.ui.view">
+        <field name="name">pc.survey.decision.form</field>
+        <field name="model">pc.survey.decision</field>
+        <field name="arch" type="xml">
+            <form string="Gestion des candidatures" class="questionnaire-form">
+            <header>
+            <field name="statut" widget="statusbar" statusbar_visible="to_be_traited,validated,rejected,needinformation"/>
+            </header>
+                <sheet>
+               <group>
+                <group string="Candidat">
+                  <field name="comite"/>
+                  <field name="email"/>
+                  <field name="nom"/>
+                  <field name="prenom"/>
+                  <field name="date_naissance"/>
+                  <field name="telephone"/>
+                  <field name="adhesion_status"/>
+                </group>
+                <group string="Suivi">
+                  <field name="date_contact_comite"/>                
+                  <field name="date_email_confirmation"/>
+                  <field name="email_verification"/>
+                  <field name="call_verification"/>
+                 <field name="commentaire"/>
+                 <field name="create_date" readonly="1" string="Date de création"/>
+               
+                </group>
+               </group>
+                    
+                    
+      <!-- Onglets pour afficher d'autres informations (Réponses au questionnaire) -->
+        <notebook>
+            <page string="Réponses au questionnaire">
+        <!-- Bloc avec ascenseur spécifique pour les réponses -->
+                <div style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                    <!-- Affichage des réponses sous forme de sous-formulaire -->
+                    <field name="user_input_lines">
+                        <list>
+                            <field name="question_id" readonly="1"/>
+                            <field name="value_char_box" readonly="1"/>
+                        </list>
+                    </field>
+                 </div>
+            </page>
+        </notebook>
+    </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pc_survey_decision_list" model="ir.ui.view">
+      <field name="name">pc.survey.decision.list</field>
+      <field name="model">pc.survey.decision</field>
+      <field name="arch" type="xml">
+        <list string="Arbitrage des candidatures">
+          <field name="create_date" readonly="1" string="Date de création"/>
+          <field name="email"/>
+          <field name="statut"/>
+          <field name="commentaire"/>
+        </list>
+      </field>
+    </record>
+  
+
+   <!-- Action pour ouvrir la vue list -->
+    <record id="action_pc_survey_decision_list" model="ir.actions.act_window">
+      <field name="name">Gestion des candidatures à la plateforme des patients</field>
+      <field name="res_model">pc.survey.decision</field>
+      <field name="view_mode">list,form</field>
+      <field name="view_id" ref="view_pc_survey_decision_list"/>
+      <field name="target">current</field>
+    </record>
+
+  <!-- Menu pour accéder à l'action -->
+    <menuitem name="Arbitrage" id="menu_pc_survey_decision" action="action_pc_survey_decision_list"/>  </data>
+</odoo>
