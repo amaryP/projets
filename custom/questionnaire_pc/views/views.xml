@@ -7,7 +7,8 @@
         <field name="arch" type="xml">
             <form string="Gestion des candidatures" class="questionnaire-form">
             <header>
-            <field name="statut" widget="statusbar" statusbar_visible="to_be_traited,validated,rejected,needinformation"/>
+            <field name="statut"/>
+            <field name="statut" widget="statusbar" statusbar_visible="to_be_traited,validated,rejected,needinformation"/>            
             </header>
                 <sheet>
                <group>
@@ -38,10 +39,15 @@
         <!-- Bloc avec ascenseur spécifique pour les réponses -->
                 <div style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
                     <!-- Affichage des réponses sous forme de sous-formulaire -->
-                    <field name="user_input_lines">
+                    <field name="user_input_lines" readonly="1">
                         <list>
                             <field name="question_id" readonly="1"/>
                             <field name="value_char_box" readonly="1"/>
+                            <field name="value_date" readonly="1"/>
+                            <field name="value_text_box" readonly="1"/>
+                            <!--<field name="value_char_box" readonly="1" invisible="[(('question_id.question_type', '!=', 'char'))]"/>-->
+                            <!--<field name="value_date" readonly="1" invisible="[(('question_id.question_type', '!=', 'date'))]"/>-->
+                            <!--<field name="value_selection" readonly="1" invisible="[(('question_id.question_type', '!=', 'selection'))]"/>-->
                         </list>
                     </field>
                  </div>
@@ -58,9 +64,10 @@
       <field name="arch" type="xml">
         <list string="Arbitrage des candidatures">
           <field name="create_date" readonly="1" string="Date de création"/>
+          <field name="nom"/>
+          <field name="prenom"/>
           <field name="email"/>
           <field name="statut"/>
-          <field name="commentaire"/>
         </list>
       </field>
     </record>
