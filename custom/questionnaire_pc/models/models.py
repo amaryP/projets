@@ -54,3 +54,6 @@ class PcSurveyDecision(models.Model):
         related='user_input_id.user_input_line_ids',  # Champ relationnel dans 'survey.user_input'
         string="Réponses au questionnaire"
     )
+    # Laisser display_name vide ou None pour ne rien afficher
+    #display_name = "" #fields.Char(string="Nom d'affichage", default=" ")
+

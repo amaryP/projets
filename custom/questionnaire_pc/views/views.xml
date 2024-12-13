@@ -5,7 +5,7 @@
         <field name="name">pc.survey.decision.form</field>
         <field name="model">pc.survey.decision</field>
         <field name="arch" type="xml">
-            <form string="Gestion des candidatures" class="questionnaire-form">
+            <form string="Gestion des candidatures" class="questionnaire-form" >
             <header>
             <field name="statut"/>
             <field name="statut" widget="statusbar" statusbar_visible="to_be_traited,validated,rejected,needinformation"/>            
@@ -64,6 +64,7 @@
       <field name="arch" type="xml">
         <list string="Arbitrage des candidatures">
           <field name="create_date" readonly="1" string="Date de création"/>
+          <field name="comite"/>
           <field name="nom"/>
           <field name="prenom"/>
           <field name="email"/>

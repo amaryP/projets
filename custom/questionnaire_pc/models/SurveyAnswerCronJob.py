@@ -1,11 +1,53 @@
 from odoo import models, fields, api
+from unidecode import unidecode
 import logging
+import json
+import re
 
 _logger = logging.getLogger(__name__)
 
 class SurveyAnswerCronJob(models.Model):
     _name = 'survey.answer.cron.job'
     _description = 'Cron job pour traiter les soumissions de sondage'
+
+    # Fonction pour normaliser la chaîne (enlever accents, espaces et majuscules)
+    def normalize_string(self, text):
+        if text is None:
+            return ''  # Retourner une chaîne vide si 'text' est None
+        normalized_text = unidecode(text).replace(" ", "").lower()
+        return normalized_text
+    def extract_fr_fr(self, text):
+        """
+        Extrait la portion de la chaîne jusqu'à 'fr_FR' inclus, puis nettoie les guillemets.
+        """
+        _logger.info(f"text: {text}")
+        # Utiliser une expression régulière pour extraire la partie jusqu'à 'fr_FR' inclus
+        match = re.search(r'"fr_FR": "(.*?)"', text)
+        _logger.info(f"Match: {match}")
+        if match:
+            # On récupère le texte entre guillemets et on nettoie les guillemets
+            extracted_text = match.group(1)
+            # Nettoyer les guillemets supplémentaires et autres caractères indésirables
+            clean_text = unidecode(extracted_text).replace('""', '').strip()
+            return clean_text
+        else:
+            _logger.warning("Aucune correspondance trouvée pour 'fr_FR'.")
+            return None
+    # Fonction pour rechercher une sous-chaîne dans les premiers caractères de la chaîne principale
+    def match_substring(self, substring, main_string):
+        # Normaliser la chaîne principale
+        main_string_clean = self.normalize_string(main_string)
+        
+        # Normaliser la sous-chaîne recherchée
+        substring_clean = self.normalize_string(substring)
+        
+        # Découper la chaîne principale pour obtenir les premiers caractères correspondant à la longueur de la sous-chaîne
+        main_string_cut = main_string_clean[:len(substring_clean)]
+        _logger.info(f"Processing question {main_string_clean}: {substring_clean}:{main_string_cut} ")  # Log pour chaque question
+        # Comparer si la sous-chaîne recherchée est égale aux premiers caractères de la chaîne principale
+        if substring_clean == main_string_cut:
+            return True
+        return False
 
     @api.model
     def run_survey_submission_check(self):
@@ -18,7 +60,7 @@ class SurveyAnswerCronJob(models.Model):
             ('survey_id', '=', 1),  # Filtrer sur le questionnaire avec ID=1
             ('state', '=', 'done')  # Ne prendre que les questionnaies terminés
         ])
-
+        
         # Parcours des réponses soumises
         for user_input in user_inputs:
             # Parcours des lignes de réponse pour trouver la réponse à la question email
@@ -33,53 +75,67 @@ class SurveyAnswerCronJob(models.Model):
 
                 # Recherche du nom dans les réponses, basé sur la question contenant 'nom'
                 # On accède explicitement à la valeur de "title" dans le champ JSON
-                ''' # a refaire une fois le nouveau champs reference implementé
+                # Traite le nom
                 
+                # Parcours des questions du sondage
                 for question in user_input.survey_id.question_ids:
-                    title = question.title  # Récupérer le champ JSON title de la question
-                    if isinstance(title, dict):  # Vérifier si title est un dictionnaire
-                        # On vérifie si 'nom' est dans le libellé de la question
-                          title_fr = title.get('fr_FR', '')  # Récupérer la valeur en français (fr_FR)
-                          if 'nom' in title_fr.lower():  # Recherche insensible à la casse
-                            # Recherche de la réponse pour cette question
-                            name_line = self.env['survey.user_input.line'].search([
-                                ('user_input_id', '=', user_input.id),
-                                ('question_id', '=', question.id)
-                            ], limit=1)
-                            break
-                '''
-                #traite le nom
-                name_line = None
-                name_line = self.env['survey.user_input.line'].search([
-                ('user_input_id', '=', user_input.id),
-                ('question_id', '=', 4)  # ID de la question 'nom'
-                ], limit=1)
+                    title = question.title  # Récupérer le champ JSON 'title' de la question
+                    # initialisation le nom
+                    nom = 'non renseigné'
+                    _logger.info(f"Traitement de la question : {title}")
+                    #title_fr=self.extract_fr_fr(title)
+                    # Utiliser la fonction match_substring pour vérifier si "1.nom" est dans le titre de la question
+                    #if self.match_substring('1.nom', title_fr):  # Recherche de "nom" dans le titre
+                    #if title.lower()=="nom":      
+                    if unidecode(title).replace(" ", "").lower() == "nom":                                         
+                        # Recherche de la réponse pour cette question
+                        nom_line = self.env['survey.user_input.line'].search([
+                        ('user_input_id', '=', user_input.id),
+                        ('question_id', '=', question.id)
+                        ], limit=1)
+                    # Si une ligne de réponse est trouvée pour la question contenant "nom"
+                        if nom_line:
+                            nom = nom_line.value_char_box  # Récupère le nom de la réponse
+                            nom = nom.capitalize()  # Mettre la première lettre en majuscule
+                            _logger.info(f"Réponse soumise pour le nom : {nom}")
 
-                # Si une ligne de réponse est trouvée pour la question contenant "nom"
-                name = None
-                if name_line:
-                    name = name_line.value_char_box  # Récupère le nom de la réponse
-                    name = name.capitalize()  # Mettre la première lettre en majuscule
-                    _logger.info(f"Réponse soumise pour le nom : {name}")
+                        # Sortir de la boucle dès qu'on a trouvé la réponse
+                            break
+                           # Vérification si 'name' est toujours None (pas trouvé)
                 #traite le prenom
-                firstname_line = None
-                firstname_line = self.env['survey.user_input.line'].search([
-                ('user_input_id', '=', user_input.id),
-                ('question_id', '=', 5)  # ID de la question 'prenom'
-                ], limit=1)
+                firstname = 'non renseigné'
+                firstname_line = None                
+                for question in user_input.survey_id.question_ids:
+                    title = question.title  # Récupérer le champ JSON 'title' de la question
+
+                    _logger.info(f"Traitement de la question : {title}")
+                    if unidecode(title).replace(" ", "").lower() == "prenom":                                         
+                
+                      firstname_line = None
+                      firstname_line = self.env['survey.user_input.line'].search([
+                      ('user_input_id', '=', user_input.id),
+                      ('question_id', '=',  question.id)#5)  # ID de la question 'prenom'
+                      ], limit=1)
 
                 # Si une ligne de réponse est trouvée pour la question contenant "prenom"
-                firstname = None
                 if firstname_line:
                     firstname = firstname_line.value_char_box  # Récupère le nom de la réponse
                     firstname = firstname.capitalize()  # Mettre la première lettre en majuscule
                     _logger.info(f"Réponse soumise pour le prenom : {firstname}")
                 #traite la date de naissance
+                #traite le prenom
+                #dateofbirth = 'non renseigné'
                 dateofbirth_line = None
-                dateofbirth_line = self.env['survey.user_input.line'].search([
-                ('user_input_id', '=', user_input.id),
-                ('question_id', '=', 6)  # ID de la question 'date de naissance'
-                ], limit=1)
+                for question in user_input.survey_id.question_ids:
+                    title = question.title  # Récupérer le champ JSON 'title' de la question
+
+                    _logger.info(f"Traitement de la question : {title}")
+                    if unidecode(title).replace(" ", "").lower() == "datedenaissance":                                         
+                
+                      dateofbirth_line = self.env['survey.user_input.line'].search([
+                        ('user_input_id', '=', user_input.id),
+                        ('question_id', '=',question.id)# 6)  # ID de la question 'date de naissance'
+                        ], limit=1)
 
                 # Si une ligne de réponse est trouvée pour la question contenant "date de naissance"
                 dateofbirth = None
@@ -89,10 +145,16 @@ class SurveyAnswerCronJob(models.Model):
 
                 #traite le telephone
                 telephone_line = None
-                telephone_line = self.env['survey.user_input.line'].search([
-                ('user_input_id', '=', user_input.id),
-                ('question_id', '=', 9)  # ID de la question 'telephone'
-                ], limit=1)
+                # Parcours des questions du sondage       
+                for question in user_input.survey_id.question_ids:
+                    title = question.title  # Récupérer le champ JSON 'title' de la question
+
+                    _logger.info(f"Traitement de la question : {title}")
+                    if unidecode(title[:9]).replace(" ", "").lower() == "telephone":                                         
+                        telephone_line = self.env['survey.user_input.line'].search([
+                        ('user_input_id', '=', user_input.id),
+                        ('question_id', '=',  question.id)# 9)  # ID de la question 'telephone'
+                        ], limit=1)
 
                 # Si une ligne de réponse est trouvée pour la question contenant "telephone"
                 telephone = None
@@ -102,10 +164,18 @@ class SurveyAnswerCronJob(models.Model):
 
                 #traite le comité
                 comite_line = None
-                comite_line = self.env['survey.user_input.line'].search([
-                ('user_input_id', '=', user_input.id),
-                ('question_id', '=', 11)  # ID de la question 'comite'
-                ], limit=1)
+                # Parcours des questions du sondage
+                for question in user_input.survey_id.question_ids:
+                    title = question.title  # Récupérer le champ JSON 'title' de la question
+                    # initialisation comité
+                    comite = 'non renseigné'
+                    _logger.info(f"Traitement de la question : {title}")
+                    if unidecode(title[:6]).replace(" ", "").lower() == "comite":                                         
+                        # Recherche de la réponse pour cette question
+                        comite_line = self.env['survey.user_input.line'].search([
+                        ('user_input_id', '=', user_input.id),
+                        ('question_id', '=',question.id)# 11)  # ID de la question 'comite'
+                        ], limit=1)
 
                 comite = None
                 if comite_line:
@@ -130,7 +200,7 @@ class SurveyAnswerCronJob(models.Model):
                         'email': email,
                         #'statut': 'pending',
                         #'commentaire': '',
-                        'nom': name,
+                        'nom': nom,
                         'prenom':firstname,
                         'date_naissance':dateofbirth,
                         'telephone':telephone,
