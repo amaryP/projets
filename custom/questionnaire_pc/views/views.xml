@@ -5,7 +5,8 @@
         <field name="name">pc.survey.decision.form</field>
         <field name="model">pc.survey.decision</field>
         <field name="arch" type="xml">
-            <form string="Gestion des candidatures" class="questionnaire-form" >
+            <form string="Gestion des candidatures"  class="o_form_sheet_full_width"> 
+            <!--class="questionnaire-form" >-->
             <header>
             <field name="statut"/>
             <field name="statut" widget="statusbar" statusbar_visible="to_be_traited,validated,rejected,needinformation"/>            
@@ -38,14 +39,20 @@
             <page string="Réponses au questionnaire">
         <!-- Bloc avec ascenseur spécifique pour les réponses -->
                 <div style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                <!--<div class="o_form_field" style="height: 300px; overflow-y: auto;">-->
+                <!--<div style="width: 100%; padding: 0; margin: 0; box-sizing: border-box;">-->
                     <!-- Affichage des réponses sous forme de sous-formulaire -->
                     <field name="user_input_lines" readonly="1">
-                        <list>
-                            <field name="question_id" readonly="1"/>
-                            <field name="value_char_box" readonly="1"/>
-                            <field name="value_date" readonly="1"/>
-                            <field name="value_text_box" readonly="1"/>
-                            <!--<field name="value_char_box" readonly="1" invisible="[(('question_id.question_type', '!=', 'char'))]"/>-->
+                        <list style="width: 100%; max-height: 300px; overflow-y: auto; border: 1px solid #ddd;">
+                            <field name="question_id" readonly="1" style="width: 50%;"/>
+                            <!--<field name="value_char_box" readonly="1"/>-->
+                            <!--<field name="value_date" readonly="1"/>-->
+                            <!--<field name="value_text_box" readonly="1"/>-->
+                            <!-- Affichage pour les réponses à choix simple -->
+                            <!--<field name="suggested_answer_id" readonly="1"/>-->
+                            <field name="combined_value" readonly="1" string="Réponse" style="width: 50%;"/>
+
+
                             <!--<field name="value_date" readonly="1" invisible="[(('question_id.question_type', '!=', 'date'))]"/>-->
                             <!--<field name="value_selection" readonly="1" invisible="[(('question_id.question_type', '!=', 'selection'))]"/>-->
                         </list>

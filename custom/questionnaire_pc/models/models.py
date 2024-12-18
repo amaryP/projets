@@ -45,15 +45,23 @@ class PcSurveyDecision(models.Model):
         ('to_be_checked', 'A vérifier')
     ], string="Statut d’adhésion", default='to_be_checked', required=True)
       # Champ Integer pour stocker l'ID du questionnaire
+
+    
     user_input_id = fields.Many2one('survey.user_input', string="Jeu de réponses au questionnaire", required=True)
 
     # Lien One2many vers 'survey.user_input.line' pour récupérer toutes les lignes de réponses
+    # Champ calculé pour récupérer les réponses à choix multiples
+    #multiple_choice_answers = fields.Char(string="Réponses à choix multiples", compute="_compute_multiple_choice_answers", store=False)
+    #suggested_answer_ids= fields.One2many('survey.question.answer', related='user_input_id.user_input_line_ids', string="Réponses à choix multiples")#, compute="_compute_multiple_choice_answers", store=False)
+    
+    # Nouveau champ calculé pour regrouper toutes les réponses
+    
 
     user_input_lines = fields.One2many(
         'survey.user_input.line',  # Modèle des lignes de réponse
         related='user_input_id.user_input_line_ids',  # Champ relationnel dans 'survey.user_input'
         string="Réponses au questionnaire"
     )
-    # Laisser display_name vide ou None pour ne rien afficher
-    #display_name = "" #fields.Char(string="Nom d'affichage", default=" ")
-
+   
+    
+    
